@@ -16,3 +16,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+.clinerules
+hoge.txt
