@@ -1,0 +1,4 @@
+[theme]
+# 見た目は白基調(Instagram風)で固定する。OSがダークモードでも崩れないように
+base = "light"
+primaryColor = "#d62976"

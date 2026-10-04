@@ -131,3 +131,10 @@
 - 管理画面は服の画像を3列で表示し、登録・削除ができる。提案画面には登録枚数と管理画面へのリンクのみ表示。
 - Dockerfile に `common.py` と `views/` のCOPYを追加（追加し忘れるとCloud Runで起動しない）。
 - 確認: Streamlit の AppTest で両画面が例外なく描画され、管理画面が3列になることを確認。実ブラウザ・本番での確認は未実施。
+
+#### Instagram風の見た目（2026-10-05）
+- `style.py` に共通CSS（白基調・細い枠線・グラデーションのタイトルと主ボタン・正方形の服グリッド）、`.streamlit/config.toml` で light テーマ固定。
+- Cloud Run は Secret を `/app/.streamlit/` に重ねてマウントし config.toml が隠れうるため、Dockerfile でも `STREAMLIT_THEME_BASE=light` を環境変数で指定。
+- スマホ幅では Streamlit が列を縦積みにするため、服グリッド(3列)と天気(2x2)だけ CSS で横並びを維持。
+- 全体に `font-family` を `[class*="st-"]` で指定するとアイコンフォントが壊れる（`upload` 等の文字が出る）ので指定しない。
+- ローカル確認のダミー画像は `closet/` のコピーを一時フォルダに取り込んで使用（旧形式のため。元フォルダは未変更）。

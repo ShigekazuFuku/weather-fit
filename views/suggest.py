@@ -35,11 +35,14 @@ city = st.selectbox("地域", list(CITIES))
 lat, lon = CITIES[city]
 weather = get_today_weather(lat, lon, city)
 if weather:
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("天候", weather["current_weather"])
-    c2.metric("気温(最高/最低)", f"{weather['max_temp']}/{weather['min_temp']}℃")
-    c3.metric("湿度", f"{weather['humidity']}%")
-    c4.metric("降水確率", f"{weather['precip_prob']}%")
+    # スマホでも2x2で収まるよう、2列を2段に分ける（スタイルは style.py の .st-key-weather_grid）
+    with st.container(key="weather_grid"):
+        c1, c2 = st.columns(2)
+        c1.metric("天候", weather["current_weather"])
+        c2.metric("気温(最高/最低)", f"{weather['max_temp']}/{weather['min_temp']}℃")
+        c3, c4 = st.columns(2)
+        c3.metric("湿度", f"{weather['humidity']}%")
+        c4.metric("降水確率", f"{weather['precip_prob']}%")
 else:
     st.warning("天気を取得できませんでした。")
 

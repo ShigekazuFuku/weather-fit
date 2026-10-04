@@ -4,10 +4,12 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from common import require_login
+from style import apply_style
 
 load_dotenv(override=True)  # シェルの環境変数（~/.bashrc 等）より .env を優先する
 
 st.set_page_config(page_title="WeatherFit", page_icon="👕")
+apply_style()
 st.title("👕 WeatherFit")
 st.caption("持っている服と今日の天気から、快適な服装を提案します")
 
