@@ -88,8 +88,14 @@
 - [x] **Step 2: 今日の天気（気温・降水確率）を取得する**
 - [x] **Step 3: Web画面（Streamlit）を作る**（動作確認済み）
 - [x] **Step 4: 天気 × クローゼットを組み合わせて服装を提案させる**（動作確認済み）
-- [ ] **Step 5: Google Cloud（Cloud Run）にデプロイする**（Dockerfile 作成済み、デプロイ待ち）
+- [x] **Step 5: Google Cloud（Cloud Run）にデプロイする**（動作確認済み）
 
-#### 次回やること候補：
-1. **Cloud Run へデプロイして動作確認（Step 5）**: 上記「Step 5 準備」の手順を実行。
-2. **（余裕があれば）改善**: 認証の追加、`closet/` の Cloud Storage 化、見た目の調整。
+#### Step 5 完了: Cloud Run へデプロイ（2026-10-04）
+- 実施内容: API 有効化 → 実行用サービスアカウント（Compute Engine 既定）へ `roles/aiplatform.user` 付与 → `gcloud run deploy weather-fit --source .`（`asia-northeast1`、`--max-instances 1`、認証なし）。
+- ブラウザから画面表示と Gemini による服装提案まで動作確認済み。
+- 公開 URL は認証なしで誰でも使えるため、このログには記載しない（Cloud Console の Cloud Run 画面か `gcloud run services describe weather-fit --region asia-northeast1` で確認できる）。URL を SNS 等に載せないこと。
+- 全5ステップ完了。
+
+#### 次回やること候補（余裕があれば）：
+1. **公開範囲の見直し**: 審査員に見せる場合はアプリ側パスワード等の認証を検討。デモ後は `gcloud run services delete weather-fit --region asia-northeast1` で削除。
+2. **改善**: `closet/` の Cloud Storage 化（再起動で写真が消える問題の解消）、見た目の調整。
