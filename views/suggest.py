@@ -3,9 +3,11 @@ import os
 
 import streamlit as st
 from google import genai
+from google.genai import types
 from PIL import Image
 
 from common import get_closet
+from outfit import CATEGORIES, Outfit, arrange
 from step2_weather_test import get_today_weather
 
 MODEL = "gemini-3.8-flash"
@@ -71,21 +73,41 @@ if clicked:
 - 湿度: {weather['humidity']}%
 - 降水確率: {weather['precip_prob']}%
 
-持っている服の中から、今日快適に過ごせる組み合わせを提案してください。
-・どの画像の服を着るか（画像番号、服の種類）
-・そう選んだ理由（気温・湿度・降水確率の観点で）
-・羽織りものや傘など、持ち物のアドバイス
-手持ちの服に適したものがなければ、その旨も正直に伝えてください。
+持っている服の中から、今日快適に過ごせる組み合わせを1つ提案してください。
+・使う服は上記の画像番号で指定する（category は {" / ".join(CATEGORIES)} のいずれか）
+・同じ種類は1点まで（小物は複数可）。暑くて羽織りが不要など、着ない種類は含めない
+・理由は気温・湿度・降水確率の観点で書く
+・羽織りものや傘など、持ち物のアドバイスも書く
+手持ちの服に適したものがなければ、items を空にして、その旨を reason に正直に書いてください。
 """
     with st.spinner("Gemini が考え中..."):
         try:
             client = genai.Client(vertexai=True, project=project, location=location)
             response = client.models.generate_content(
-                model=MODEL, contents=[*images, prompt]
+                model=MODEL,
+                contents=[*images, prompt],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json", response_schema=Outfit
+                ),
             )
-            st.markdown(response.text)
+            outfit = Outfit.model_validate_json(response.text)
         except Exception as e:
             st.error(f"エラーが発生しました: {e}")
+            outfit = None
+
+    if outfit:
+        items = arrange(outfit, len(closet_ids))
+        if items:
+            # 上に着るものから順に、服の画像と説明を並べる（スタイルは style.py の .st-key-outfit_list）
+            with st.container(key="outfit_list"):
+                for item in items:
+                    img_col, text_col = st.columns([1, 2], vertical_alignment="center")
+                    img_col.image(closet.read(closet_ids[item.image_number - 1]), width="stretch")
+                    text_col.markdown(f"**{item.category}**  \n{item.note}  \n:gray[服 {item.image_number}]")
+        else:
+            st.info("今日の天気に合う服が見つかりませんでした。")
+        st.markdown(f"**理由**  \n{outfit.reason}")
+        st.markdown(f"**持ち物**  \n{outfit.advice}")
 
 # 固定ボタンに本文の末尾が隠れないための余白
 st.markdown('<div style="height:4.5rem"></div>', unsafe_allow_html=True)

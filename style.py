@@ -62,6 +62,15 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 /* サイドバーは使わないので、開閉ボタンも出さない */
 [data-testid="stSidebar"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] {{ display: none; }}
 
+/* おすすめコーデ: 左に服の画像、右に種類と説明。スマホでも横並びのまま */
+.st-key-outfit_list [data-testid="stHorizontalBlock"] {{
+  flex-wrap: nowrap; gap: 1rem; padding: .6rem; background: #fff; border: 1px solid var(--ig-border); border-radius: 12px;
+}}
+.st-key-outfit_list [data-testid="stColumn"] {{ min-width: 0; width: auto; }}
+.st-key-outfit_list [data-testid="stColumn"]:first-child {{ flex: 0 0 34%; }}
+.st-key-outfit_list [data-testid="stColumn"]:last-child {{ flex: 1 1 0; }}
+.st-key-outfit_list img {{ aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; }}
+
 /* アップロード欄: 枠や説明文を消して「写真をアップロード」ボタン1つに見せる */
 .st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] {{ border: 0; background: transparent; padding: 0; }}
 .st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] section {{ padding: 0; border: 0; background: transparent; }}
