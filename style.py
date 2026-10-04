@@ -107,10 +107,6 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 .st-key-closet_grid [data-testid="stImageCaption"] {{ display: none; }}
 .st-key-closet_grid .stButton > button {{ min-height: 1.8rem; padding: 0; font-size: .8rem; }}
 
-/* 登録枚数: プロフィールの「投稿 N」風 */
-.closet-stat {{ display: flex; align-items: baseline; gap: .4rem; padding: 0 0 .6rem; margin: -.6rem 0 3px; border-bottom: 1px solid var(--ig-border); }}
-.closet-stat b {{ font-size: 1.4rem; }}
-.closet-stat span {{ color: var(--ig-sub); }}
 </style>
 """
 

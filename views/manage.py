@@ -43,10 +43,8 @@ if "flash" in st.session_state:
 
 # --- 一覧（3列） ---
 closet_ids = closet.list_ids()
-st.markdown(
-    f'<div class="closet-stat"><b>{len(closet_ids)}</b><span>枚の服</span></div>',
-    unsafe_allow_html=True,
-)
+if not closet_ids:
+    st.caption("まだ服が登録されていません。「写真をアップロード」から追加してください。")
 if closet_ids:
     # 一覧のスタイル（スマホでも横3列を保つ等）は style.py の .st-key-closet_grid
     with st.container(key="closet_grid"):
