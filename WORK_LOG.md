@@ -165,3 +165,6 @@
 - 提案画面の見出しから番号を削除。提案結果のカードから「服 N」を削除し、Geminiには文章に画像番号を書かせない指示を追加（番号は内部の対応づけ専用）。
 
 - 提案待ちの表示「Gemini が考え中...」を、ランダムな一言（`views/suggest.py` の `WAITING_MESSAGES`）に変更。
+
+- 待機メッセージを200個に増やし、`messages.py` に分離（重複なし）。
+- Dockerfile の COPY に `messages.py` と、コーデ画像表示で追加した `outfit.py` を追加（`outfit.py` が抜けており、デプロイすると提案画面が起動エラーになる状態だった）。新しい .py ファイルを追加したら Dockerfile の COPY も更新すること。

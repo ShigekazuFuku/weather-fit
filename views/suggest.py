@@ -8,24 +8,11 @@ from google.genai import types
 from PIL import Image
 
 from common import get_closet, show_title
+from messages import WAITING_MESSAGES
 from outfit import CATEGORIES, Outfit, arrange
 from step2_weather_test import get_today_weather
 
 MODEL = "gemini-3.8-flash"
-
-# 提案を待っている間に表示する一言（毎回ランダムに1つ選ぶ）
-WAITING_MESSAGES = [
-    "今日もいい1日になりますように ☀️",
-    "クローゼットをのぞいています 👀",
-    "お出かけ前の、ちょっとしたお楽しみタイム ✨",
-    "空と相談しながら、コーデを考え中 ☁️",
-    "いってらっしゃいの準備をしています 🎒",
-    "あなたに似合う1着を探しています 🔍",
-    "今日のあなたが、ちょっと好きになる服を選びます 💫",
-    "鏡の前に立つのが楽しみになりますように 🪞",
-    "天気もおしゃれも、ばっちり整えます 🌈",
-    "いい出会いのある1日になりますように 🍀",
-]
 
 # 地域の選択肢（緯度, 経度）
 CITIES = {
