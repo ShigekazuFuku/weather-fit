@@ -125,3 +125,9 @@
   5. `gcloud run deploy weather-fit --source . --service-account ... --set-env-vars ...,CLOSET_BUCKET=... --set-secrets ... --max-instances 1 --allow-unauthenticated`
 - 動作確認: ログイン、追加、再読込後も残る、削除、提案、別アカウントから画像が見えないことを確認済み。
 - 公開前のTODO: OAuth同意画面を「テスト中」から「本番環境に公開」へ（審査員に使ってもらう場合）。
+
+#### 画像管理画面の分離（2026-10-05）
+- `st.navigation` で「服装提案」と「クローゼット管理」の2画面に分割（`app.py` が入口、`common.py` にログイン・クローゼット取得、`views/` に各画面）。
+- 管理画面は服の画像を3列で表示し、登録・削除ができる。提案画面には登録枚数と管理画面へのリンクのみ表示。
+- Dockerfile に `common.py` と `views/` のCOPYを追加（追加し忘れるとCloud Runで起動しない）。
+- 確認: Streamlit の AppTest で両画面が例外なく描画され、管理画面が3列になることを確認。実ブラウザ・本番での確認は未実施。
