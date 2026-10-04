@@ -10,28 +10,35 @@ closet = get_closet()
 st.subheader("👗 クローゼット管理")
 
 # --- 登録 ---
+# ボタンは「写真をアップロード」1つだけ。写真を選んだ時点で自動保存する
+# （見た目の調整は style.py の .st-key-uploader_wrap）
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
-uploaded = st.file_uploader(
-    "服の写真を選択（複数可）",
-    type=["jpg", "jpeg", "png"],
-    accept_multiple_files=True,
-    key=f"uploader_{st.session_state.uploader_key}",
-)
-if uploaded and st.button("クローゼットに保存"):
-    saved = 0
+with st.container(key="uploader_wrap"):
+    uploaded = st.file_uploader(
+        "服の写真を選択（複数可）",
+        type=["jpg", "jpeg", "png"],
+        accept_multiple_files=True,
+        key=f"uploader_{st.session_state.uploader_key}",
+        label_visibility="collapsed",
+    )
+if uploaded:
+    saved, errors = 0, []
     for f in uploaded:
         try:
             closet.add(f.getvalue())
             saved += 1
         except ClosetError as e:
-            st.error(f"{f.name}: {e}")
-    if saved:
-        st.session_state.uploader_key += 1  # アップロード欄をリセット
-        st.session_state.flash = f"{saved} 枚を保存しました"
-        st.rerun()
+            errors.append(f"{f.name}: {e}")
+    st.session_state.uploader_key += 1  # アップロード欄をリセット（再保存を防ぐ）
+    st.session_state.flash = (saved, errors)
+    st.rerun()
 if "flash" in st.session_state:
-    st.success(st.session_state.pop("flash"))
+    saved, errors = st.session_state.pop("flash")
+    if saved:
+        st.success(f"{saved} 枚を保存しました")
+    for msg in errors:
+        st.error(msg)
 
 # --- 一覧（3列） ---
 closet_ids = closet.list_ids()

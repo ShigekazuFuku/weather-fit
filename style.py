@@ -62,6 +62,18 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 /* サイドバーは使わないので、開閉ボタンも出さない */
 [data-testid="stSidebar"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] {{ display: none; }}
 
+/* アップロード欄: 枠や説明文を消して「写真をアップロード」ボタン1つに見せる */
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] {{ border: 0; background: transparent; padding: 0; }}
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] section {{ padding: 0; border: 0; background: transparent; }}
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none; }}
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] button {{
+  width: 100%; min-height: 3rem; justify-content: center; border-radius: 8px;
+  border: 1px solid var(--ig-border); background: #fff; font-weight: 600;
+}}
+/* ボタンの文字は英語固定の "Upload" なので、中身を隠して日本語に差し替える */
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] button > * {{ display: none; }}
+.st-key-uploader_wrap [data-testid="stFileUploaderDropzone"] button::after {{ content: "📷 写真をアップロード"; font-size: 1rem; }}
+
 /* 提案ボタン: タブのすぐ上に固定（スマホの親指で押しやすい位置）。本文が隠れないよう下に余白を足す */
 .block-container {{ padding-bottom: 6rem; }}
 .st-key-suggest_bar {{
