@@ -109,3 +109,19 @@
 #### 次回やること候補（余裕があれば）：
 1. **公開範囲の見直し**: 再デプロイして審査員に見せる場合はアプリ側パスワード等の認証を検討。
 2. **改善**: `closet/` の Cloud Storage 化（再起動で写真が消える問題の解消）、見た目の調整。
+
+#### ユーザーごとの服画像の保存（2026-10-05）
+- 要件: ユーザーごとに服の画像を記憶、追加・削除できる。**他ユーザーの画像が見えるのは絶対NG**。
+- 実装: `closet_store.py`（保存処理）＋ `app.py`（Googleログイン `st.login`、追加・削除UI）。
+  - ユーザーID＝ログインID(`sub`)のSHA-256。メールアドレスは保存しない。保存先は必ず `ユーザーID/` 配下。
+  - 画像IDはサーバー生成のuuid＋拡張子のみ受け付ける（`../` 等は拒否）。公開URLは発行しない。
+  - 本番は非公開 Cloud Storage（`CLOSET_BUCKET`）、開発時はローカル。`LOCAL_DEV=1` は手元専用で**本番では絶対に設定しない**。
+- 設計上の注意: アプリは1つのサービスアカウントで全ユーザーの画像を読み書きできるため、ユーザー分離は**コードの正しさ**で守っている。`closet_store.py` を変更したら必ず分離を再確認すること。
+- Google Cloud の設定（`<プロジェクトID>` は自分のものに置き換える）:
+  1. バケット作成（東京、均一アクセス制御、公開アクセス禁止）
+  2. 専用サービスアカウント `weather-fit-runner` を作成。権限は「Vertex AI利用(プロジェクト)」と「バケット内オブジェクト管理(バケット単位)」「Secret読み取り(その秘密のみ)」だけ
+  3. Google Auth Platform で同意画面とOAuthクライアントを作成（サポートメールはGoogleグループ）。リダイレクトURIは `https://weather-fit-<プロジェクト番号>.asia-northeast1.run.app/oauth2callback`（この形式のURLから開くこと）
+  4. `secrets.toml`（`[auth]` 設定）を Secret Manager に保存し、`--set-secrets /app/.streamlit/secrets.toml=...` でマウント
+  5. `gcloud run deploy weather-fit --source . --service-account ... --set-env-vars ...,CLOSET_BUCKET=... --set-secrets ... --max-instances 1 --allow-unauthenticated`
+- 動作確認: ログイン、追加、再読込後も残る、削除、提案、別アカウントから画像が見えないことを確認済み。
+- 公開前のTODO: OAuth同意画面を「テスト中」から「本番環境に公開」へ（審査員に使ってもらう場合）。
