@@ -1,4 +1,6 @@
-streamlit
+streamlit>=1.42
+Authlib
+google-cloud-storage
 google-genai
 pillow
 python-dotenv

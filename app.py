@@ -1,16 +1,15 @@
+import io
 import os
-from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 from PIL import Image
 
+from closet_store import Closet, ClosetError, make_backend, user_id_from_subject
 from step2_weather_test import get_today_weather
 
 MODEL = "gemini-3.8-flash"
-CLOSET_DIR = Path("closet")  # アップロードした服の写真の保存先
-CLOSET_DIR.mkdir(exist_ok=True)
 
 # 地域の選択肢（緯度, 経度）
 CITIES = {
@@ -33,24 +32,61 @@ if not project:
     st.error(".env に GOOGLE_CLOUD_PROJECT（GoogleCloudのプロジェクトID）を設定してください。")
     st.stop()
 
+# --- ログイン（ユーザーごとにクローゼットを分けるため必須） ---
+if os.getenv("LOCAL_DEV") == "1":
+    # 手元での開発用。本番(Cloud Run)では絶対に設定しないこと
+    user_id = user_id_from_subject("local-dev-user")
+else:
+    if not st.user.is_logged_in:
+        st.info("ご自身の服の写真を保存するため、ログインしてください。")
+        st.button("Googleでログイン", on_click=st.login)
+        st.stop()
+    user_id = user_id_from_subject(st.user.sub)
+    st.sidebar.button("ログアウト", on_click=st.logout)
+
+
+@st.cache_resource
+def get_backend():
+    return make_backend()
+
+
+closet = Closet(get_backend(), user_id)  # このユーザー専用の領域しか触れない
+
 # --- 1. クローゼット登録 ---
 st.header("1. クローゼットに服を登録")
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
 uploaded = st.file_uploader(
-    "服の写真を選択（複数可）", type=["jpg", "jpeg", "png"], accept_multiple_files=True
+    "服の写真を選択（複数可）",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True,
+    key=f"uploader_{st.session_state.uploader_key}",
 )
 if uploaded and st.button("クローゼットに保存"):
+    saved = 0
     for f in uploaded:
-        (CLOSET_DIR / f.name).write_bytes(f.getvalue())
-    st.success(f"{len(uploaded)} 枚を保存しました")
+        try:
+            closet.add(f.getvalue())
+            saved += 1
+        except ClosetError as e:
+            st.error(f"{f.name}: {e}")
+    if saved:
+        st.session_state.uploader_key += 1  # アップロード欄をリセット
+        st.session_state.flash = f"{saved} 枚を保存しました"
+        st.rerun()
+if "flash" in st.session_state:
+    st.success(st.session_state.pop("flash"))
 
-closet_files = sorted(
-    p for p in CLOSET_DIR.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png")
-)
-st.write(f"登録済み: {len(closet_files)} 枚")
-if closet_files:
+closet_ids = closet.list_ids()
+st.write(f"登録済み: {len(closet_ids)} 枚")
+if closet_ids:
     cols = st.columns(4)
-    for i, p in enumerate(closet_files):
-        cols[i % 4].image(str(p), caption=p.name, use_container_width=True)
+    for i, image_id in enumerate(closet_ids):
+        with cols[i % 4]:
+            st.image(closet.read(image_id), caption=f"服 {i + 1}", use_container_width=True)
+            if st.button("削除", key=f"del_{image_id}"):
+                closet.delete(image_id)
+                st.rerun()
 
 # --- 2. 天気 ---
 st.header("2. 今日の天気")
@@ -68,9 +104,9 @@ else:
 
 # --- 3. 提案 ---
 st.header("3. 今日の服装を提案")
-if st.button("提案してもらう", type="primary", disabled=not (closet_files and weather)):
-    images = [Image.open(p) for p in closet_files]
-    names = "\n".join(f"- 画像{i + 1}: {p.name}" for i, p in enumerate(closet_files))
+if st.button("提案してもらう", type="primary", disabled=not (closet_ids and weather)):
+    images = [Image.open(io.BytesIO(closet.read(i))) for i in closet_ids]
+    names = "\n".join(f"- 画像{i + 1}: 服 {i + 1}" for i in range(len(closet_ids)))
     prompt = f"""
 あなたはファッションスタイリストです。添付の画像は私が持っている服です。
 {names}
@@ -82,7 +118,7 @@ if st.button("提案してもらう", type="primary", disabled=not (closet_files
 - 降水確率: {weather['precip_prob']}%
 
 持っている服の中から、今日快適に過ごせる組み合わせを提案してください。
-・どの画像の服を着るか（画像番号とファイル名、服の種類）
+・どの画像の服を着るか（画像番号、服の種類）
 ・そう選んだ理由（気温・湿度・降水確率の観点で）
 ・羽織りものや傘など、持ち物のアドバイス
 手持ちの服に適したものがなければ、その旨も正直に伝えてください。
