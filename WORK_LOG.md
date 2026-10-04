@@ -65,16 +65,26 @@
   - ADC の請求先が別プロジェクトになっていた → `gcloud auth application-default set-quota-project <プロジェクトID>` で修正。
   - `~/.bashrc` の `GOOGLE_CLOUD_PROJECT` が `.env` より優先されていた → `load_dotenv(override=True)` で `.env` を優先。
 
+#### Step 5 準備: Cloud Run 用ファイルの追加（作業日 #2 続き）
+- [Dockerfile](Dockerfile)（python:3.12-slim、`PORT` 環境変数で Streamlit を起動）と [.dockerignore](.dockerignore)（`.env` / `closet/` / `images/` 等を除外）を追加。
+- ⚠️ 未検証: Docker ビルドとデプロイは未実施（コマンドを書いただけ）。
+- デプロイ手順（`<プロジェクトID>` は自分のものに置き換える）:
+  1. `gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project=<プロジェクトID>`
+  2. `gcloud run deploy weather-fit --source . --region asia-northeast1 --project=<プロジェクトID> --set-env-vars GOOGLE_CLOUD_PROJECT=<プロジェクトID>,GOOGLE_CLOUD_LOCATION=global --allow-unauthenticated`
+  3. 実行用サービスアカウントに「Vertex AI ユーザー（`roles/aiplatform.user`）」権限が必要（ローカルの ADC の代わりになる）。
+  4. 発行された URL をスマホ/ブラウザで開いて動作確認。
+- 注意点:
+  - Cloud Run のディスクは一時的なため、`closet/` にアップロードした服はインスタンス再起動で消える（永続化するなら Cloud Storage 化が必要）。
+  - `--allow-unauthenticated` は URL を知る人が誰でも使える設定（Gemini の課金が発生しうる）。公開前に認証の要否を検討すること。
+
 ### 🗺️ 現在地と次のタスク
 
 - [x] **Step 1: Python から Gemini API を呼び出す（画像認識・特徴抽出）**
 - [x] **Step 2: 今日の天気（気温・降水確率）を取得する**
-- [x] **Step 3: Web画面（Streamlit）を作る**（動作確認待ち）
-- [x] **Step 4: 天気 × クローゼットを組み合わせて服装を提案させる**（動作確認待ち）
-- [ ] **Step 5: Google Cloud（Cloud Run）にデプロイする**
+- [x] **Step 3: Web画面（Streamlit）を作る**（動作確認済み）
+- [x] **Step 4: 天気 × クローゼットを組み合わせて服装を提案させる**（動作確認済み）
+- [ ] **Step 5: Google Cloud（Cloud Run）にデプロイする**（Dockerfile 作成済み、デプロイ待ち）
 
 #### 次回やること候補：
-1. **「服 × 天気」の組み合わせ推論ロジックの実装（Step 4 のコア部分）**:
-   - `images/sample.jpg` と 今日の天気データを Gemini に渡し、「今日の天気でこの服を着ていくのは適切か？」「羽織りものは必要か？」をアドバイスさせる。
-2. **Streamlit による Web 画面の作成（Step 3）**:
-   - ブラウザから写真をアップロードして、ボタンを押すと服装アドバイスが表示される画面を作る。
+1. **Cloud Run へデプロイして動作確認（Step 5）**: 上記「Step 5 準備」の手順を実行。
+2. **（余裕があれば）改善**: 認証の追加、`closet/` の Cloud Storage 化、見た目の調整。
