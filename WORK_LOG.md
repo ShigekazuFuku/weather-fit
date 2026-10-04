@@ -45,12 +45,22 @@
 
 ---
 
+## 📅 2026-10-04 (作業日 #2)
+
+- [app.py](app.py)（Streamlit）を作成。Step 3 と Step 4 をまとめて実装:
+  - 服の写真を複数アップロード → `closet/` フォルダに保存（`.gitignore` 済み）
+  - 地域を選んで Open-Meteo から天気取得（step2 の関数を再利用）
+  - 全ての服の画像 + 天気を Gemini に渡して服装を提案
+- [requirements.txt](requirements.txt) を追加。
+- ⚠️ 未検証: この環境に streamlit 未インストールのため構文チェックのみ。実機で要動作確認。
+- 実行方法: `pip install -r requirements.txt` → `streamlit run app.py`
+
 ### 🗺️ 現在地と次のタスク
 
 - [x] **Step 1: Python から Gemini API を呼び出す（画像認識・特徴抽出）**
 - [x] **Step 2: 今日の天気（気温・降水確率）を取得する**
-- [ ] **Step 3: Web画面（Streamlit）を作る**
-- [ ] **Step 4: 天気 × クローゼットを組み合わせて服装を提案させる**
+- [x] **Step 3: Web画面（Streamlit）を作る**（動作確認待ち）
+- [x] **Step 4: 天気 × クローゼットを組み合わせて服装を提案させる**（動作確認待ち）
 - [ ] **Step 5: Google Cloud（Cloud Run）にデプロイする**
 
 #### 次回やること候補：
