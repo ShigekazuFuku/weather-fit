@@ -8,14 +8,13 @@ COLUMNS = 3  # 服の画像を並べる列数
 closet = get_closet()
 
 # --- 登録 ---
-# 「タイトル + 見出し + アップロードボタン」は、一覧をスクロールしても画面上部に残す
+# 「タイトル + アップロードボタン」は、一覧をスクロールしても画面上部に残す
 # （固定の仕組みは style.py の .st-key-sticky_top）
 # ボタンは「写真をアップロード」1つだけ。写真を選んだ時点で自動保存する
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
 with st.container(key="sticky_top"):
     show_title()
-    st.subheader("👗 クローゼット管理")
     with st.container(key="uploader_wrap"):
         uploaded = st.file_uploader(
             "服の写真を選択（複数可）",
