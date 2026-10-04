@@ -109,3 +109,13 @@
 #### 次回やること候補（余裕があれば）：
 1. **公開範囲の見直し**: 再デプロイして審査員に見せる場合はアプリ側パスワード等の認証を検討。
 2. **改善**: `closet/` の Cloud Storage 化（再起動で写真が消える問題の解消）、見た目の調整。
+
+#### ユーザーごとのクローゼットと Cloud Storage 永続化（2026-10-04）
+- [storage.py](storage.py) を追加。ユーザー名+パスワード（PBKDF2 ハッシュ）でログインし、画像は `users/<ユーザー名>/closet/` 配下にのみ保存・取得する（他ユーザーの画像は見えない）。
+- `CLOSET_BUCKET` 環境変数があれば Cloud Storage、無ければローカル `closet/`（開発用）に保存。再デプロイしても画像・アカウントは残る。
+- ⚠️ 未検証: ローカル保存での単体テストのみ。Cloud Storage 実機と Streamlit 画面は未確認。
+- デプロイ手順（`<プロジェクトID>` / `<バケット名>` は置き換える）:
+  1. `gcloud storage buckets create gs://<バケット名> --location=asia-northeast1 --project=<プロジェクトID> --uniform-bucket-level-access`（公開設定にしないこと）
+  2. 実行用サービスアカウントにバケットへの `roles/storage.objectAdmin` を付与
+  3. `gcloud run deploy` に `--set-env-vars ...,CLOSET_BUCKET=<バケット名>` を追加
+- 注意: 認証は簡易（アカウント作成は誰でも可、パスワード再設定なし）。`--max-instances 1` のままなら ID 競合は起きにくい。

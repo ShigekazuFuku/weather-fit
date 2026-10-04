@@ -1,5 +1,5 @@
+import io
 import os
-from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -7,10 +7,9 @@ from google import genai
 from PIL import Image
 
 from step2_weather_test import get_today_weather
+from storage import Store, normalize_username
 
 MODEL = "gemini-3.8-flash"
-CLOSET_DIR = Path("closet")  # アップロードした服の写真の保存先
-CLOSET_DIR.mkdir(exist_ok=True)
 
 # 地域の選択肢（緯度, 経度）
 CITIES = {
@@ -33,6 +32,51 @@ if not project:
     st.error(".env に GOOGLE_CLOUD_PROJECT（GoogleCloudのプロジェクトID）を設定してください。")
     st.stop()
 
+@st.cache_resource
+def get_store() -> Store:
+    return Store()
+
+
+store = get_store()
+
+# --- 0. ログイン（ユーザーごとにクローゼットを分けるため） ---
+user = st.session_state.get("user")
+if not user:
+    st.header("ログイン")
+    tab_login, tab_register = st.tabs(["ログイン", "新規登録"])
+    with tab_login:
+        with st.form("login"):
+            name = st.text_input("ユーザー名")
+            pw = st.text_input("パスワード", type="password")
+            if st.form_submit_button("ログイン"):
+                uname = normalize_username(name)
+                if uname and store.verify(uname, pw):
+                    st.session_state["user"] = uname
+                    st.rerun()
+                else:
+                    st.error("ユーザー名またはパスワードが違います。")
+    with tab_register:
+        with st.form("register"):
+            name = st.text_input("ユーザー名（英数字・_・-、3〜32文字）")
+            pw = st.text_input("パスワード（8文字以上）", type="password")
+            if st.form_submit_button("登録"):
+                uname = normalize_username(name)
+                if not uname:
+                    st.error("ユーザー名は英数字・_・-の3〜32文字にしてください。")
+                elif len(pw) < 8:
+                    st.error("パスワードは8文字以上にしてください。")
+                elif store.register(uname, pw):
+                    st.session_state["user"] = uname
+                    st.rerun()
+                else:
+                    st.error("そのユーザー名は既に使われています。")
+    st.stop()
+
+st.sidebar.write(f"ログイン中: {user}")
+if st.sidebar.button("ログアウト"):
+    del st.session_state["user"]
+    st.rerun()
+
 # --- 1. クローゼット登録 ---
 st.header("1. クローゼットに服を登録")
 uploaded = st.file_uploader(
@@ -40,17 +84,19 @@ uploaded = st.file_uploader(
 )
 if uploaded and st.button("クローゼットに保存"):
     for f in uploaded:
-        (CLOSET_DIR / f.name).write_bytes(f.getvalue())
+        store.save_image(user, f.name, f.getvalue())
     st.success(f"{len(uploaded)} 枚を保存しました")
 
-closet_files = sorted(
-    p for p in CLOSET_DIR.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png")
-)
-st.write(f"登録済み: {len(closet_files)} 枚")
-if closet_files:
+closet_names = store.list_images(user)
+st.write(f"登録済み: {len(closet_names)} 枚")
+closet_images = [(n, store.load_image(user, n)) for n in closet_names]
+if closet_images:
     cols = st.columns(4)
-    for i, p in enumerate(closet_files):
-        cols[i % 4].image(str(p), caption=p.name, use_container_width=True)
+    for i, (n, data) in enumerate(closet_images):
+        cols[i % 4].image(data, caption=n, use_container_width=True)
+        if cols[i % 4].button("削除", key=f"del_{n}"):
+            store.delete_image(user, n)
+            st.rerun()
 
 # --- 2. 天気 ---
 st.header("2. 今日の天気")
@@ -68,9 +114,9 @@ else:
 
 # --- 3. 提案 ---
 st.header("3. 今日の服装を提案")
-if st.button("提案してもらう", type="primary", disabled=not (closet_files and weather)):
-    images = [Image.open(p) for p in closet_files]
-    names = "\n".join(f"- 画像{i + 1}: {p.name}" for i, p in enumerate(closet_files))
+if st.button("提案してもらう", type="primary", disabled=not (closet_images and weather)):
+    images = [Image.open(io.BytesIO(d)) for _, d in closet_images]
+    names = "\n".join(f"- 画像{i + 1}: {n}" for i, (n, _) in enumerate(closet_images))
     prompt = f"""
 あなたはファッションスタイリストです。添付の画像は私が持っている服です。
 {names}
