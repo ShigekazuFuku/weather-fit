@@ -96,6 +96,16 @@
 - 公開 URL は認証なしで誰でも使えるため、このログには記載しない（Cloud Console の Cloud Run 画面か `gcloud run services describe weather-fit --region asia-northeast1` で確認できる）。URL を SNS 等に載せないこと。
 - 全5ステップ完了。
 
+#### デプロイ後の片付けと Git 整理（2026-10-04）
+- Git:
+  - `dev` を `main` にマージ（`main` は GitHub 作成時の Initial commit のみで履歴が別だったため `--allow-unrelated-histories` を使用。`LICENSE` / `README.md` も `main` に含まれる）。`dev` / `main` とも GitHub に push 済み。
+  - このリポジトリのリモート名は `origin` ではなく **`upstream`**（`git push upstream dev`）。
+- Google Cloud の後片付け（動作確認後、課金リスクをなくすため）:
+  - Cloud Run サービス `weather-fit` を削除（公開 URL は停止）。
+  - Artifact Registry のリポジトリ `cloud-run-source-deploy`（Cloud Run が自動作成、約187MB）を削除。
+  - 残っているもの: 予算アラート、有効化済み API、`roles/aiplatform.user` の付与、Cloud Build がソースを置く Cloud Storage バケット（小容量、未確認・未削除）。
+- 再デプロイしたいときは上記「Step 5 準備」の手順 2 を実行すれば Artifact Registry も自動で作り直される。
+
 #### 次回やること候補（余裕があれば）：
-1. **公開範囲の見直し**: 審査員に見せる場合はアプリ側パスワード等の認証を検討。デモ後は `gcloud run services delete weather-fit --region asia-northeast1` で削除。
+1. **公開範囲の見直し**: 再デプロイして審査員に見せる場合はアプリ側パスワード等の認証を検討。
 2. **改善**: `closet/` の Cloud Storage 化（再起動で写真が消える問題の解消）、見た目の調整。
