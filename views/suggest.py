@@ -47,8 +47,19 @@ else:
     st.warning("天気を取得できませんでした。")
 
 # --- 3. 提案 ---
-st.header("3. 今日の服装を提案")
-if st.button("提案してもらう", type="primary", disabled=not (closet_ids and weather)):
+# ボタンは画面下部に固定（スクロールしても常に押せる）。スタイルは style.py の .st-key-suggest_bar
+with st.container(key="suggest_bar"):
+    clicked = st.button(
+        "✨ 今日の服装を提案してもらう",
+        type="primary",
+        width="stretch",
+        disabled=not (closet_ids and weather),
+    )
+if not closet_ids:
+    st.info("提案には服の登録が必要です。「クローゼット管理」から登録してください。")
+
+if clicked:
+    st.header("3. 今日の服装の提案")
     images = [Image.open(io.BytesIO(closet.read(i))) for i in closet_ids]
     names = "\n".join(f"- 画像{i + 1}: 服 {i + 1}" for i in range(len(closet_ids)))
     prompt = f"""

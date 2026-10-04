@@ -19,11 +19,15 @@ if not os.getenv("GOOGLE_CLOUD_PROJECT"):
 
 require_login()  # ユーザーごとにクローゼットを分けるため、全画面でログイン必須
 
-# 画面の切り替え（サイドバーに表示される）
-pg = st.navigation(
-    [
-        st.Page("views/suggest.py", title="服装提案", icon="👕", default=True),
-        st.Page("views/manage.py", title="クローゼット管理", icon="👗"),
-    ]
-)
+# 画面の切り替え。サイドバーは使わない（スマホだと top 指定でもサイドバーに畳まれてしまう）。
+# Streamlit 標準のメニューは隠し、タイトル下に自前のタブ(ページリンク)を置く
+suggest_page = st.Page("views/suggest.py", title="服装提案", icon="👕", default=True)
+manage_page = st.Page("views/manage.py", title="クローゼット管理", icon="👗")
+pg = st.navigation([suggest_page, manage_page], position="hidden")
+
+with st.container(key="top_nav"):
+    c1, c2 = st.columns(2)
+    c1.page_link(suggest_page, width="stretch")
+    c2.page_link(manage_page, width="stretch")
+
 pg.run()

@@ -1,7 +1,7 @@
 import streamlit as st
 
 from closet_store import ClosetError
-from common import get_closet
+from common import get_closet, show_logout_button
 
 COLUMNS = 3  # 服の画像を並べる列数
 
@@ -52,3 +52,6 @@ if closet_ids:
                     if st.button("🗑 削除", key=f"del_{image_id}", type="tertiary", width="stretch"):
                         closet.delete(image_id)
                         st.rerun()
+
+# --- アカウント ---
+show_logout_button()

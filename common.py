@@ -13,7 +13,12 @@ def require_login() -> None:
         st.info("ご自身の服の写真を保存するため、ログインしてください。")
         st.button("Googleでログイン", on_click=st.login)
         st.stop()
-    st.sidebar.button("ログアウト", on_click=st.logout)
+
+
+def show_logout_button() -> None:
+    """ログアウトボタン（ローカル開発時は不要なので出さない）"""
+    if os.getenv("LOCAL_DEV") != "1":
+        st.button("ログアウト", on_click=st.logout)
 
 
 @st.cache_resource
