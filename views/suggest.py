@@ -9,7 +9,7 @@ from PIL import Image
 
 from common import get_closet, show_title
 from messages import WAITING_MESSAGES
-from outfit import CATEGORIES, Outfit, arrange
+from outfit import CATEGORIES, Outfit, arrange, bullets
 from step2_weather_test import get_today_weather
 
 MODEL = "gemini-3.8-flash"
@@ -77,9 +77,9 @@ if clicked:
 持っている服の中から、今日快適に過ごせる組み合わせを1つ提案してください。
 ・使う服は上記の画像番号で指定する（category は {" / ".join(CATEGORIES)} のいずれか）
 ・同じ種類は1点まで（小物は複数可）。暑くて羽織りが不要など、着ない種類は含めない
-・理由は気温・湿度・降水確率の観点で書く。画面には画像が並んで表示されるので、note・reason・advice に「画像1」「服15」のような番号は書かず、服は「デニムジャケット」のように特徴で呼ぶ
+・reason（理由）と advice（持ち物）は、それぞれ短い文の3項目の箇条書きにする（1項目は1文30字程度）。理由は気温・湿度・降水確率の観点で書く。画面には画像が並んで表示されるので、note・reason・advice に「画像1」「服15」のような番号は書かず、服は「デニムジャケット」のように特徴で呼ぶ
 ・羽織りものや傘など、持ち物のアドバイスも書く
-手持ちの服に適したものがなければ、items を空にして、その旨を reason に正直に書いてください。
+手持ちの服に適したものがなければ、items を空にして、その旨を reason の項目として正直に書いてください。
 """
     with st.spinner(random.choice(WAITING_MESSAGES)):
         try:
@@ -107,8 +107,8 @@ if clicked:
                     text_col.markdown(f"**{item.category}**  \n{item.note}")
         else:
             st.info("今日の天気に合う服が見つかりませんでした。")
-        st.markdown(f"**理由**  \n{outfit.reason}")
-        st.markdown(f"**持ち物**  \n{outfit.advice}")
+        st.markdown(f"**理由**\n\n{bullets(outfit.reason)}")
+        st.markdown(f"**持ち物**\n\n{bullets(outfit.advice)}")
 
 # 固定ボタンに本文の末尾が隠れないための余白
 st.markdown('<div style="height:4.5rem"></div>', unsafe_allow_html=True)

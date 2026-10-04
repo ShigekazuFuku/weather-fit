@@ -21,8 +21,12 @@ class OutfitItem(BaseModel):
 
 class Outfit(BaseModel):
     items: list[OutfitItem] = Field(description="今日着る服。同じ種類は1点まで（小物は複数可）")
-    reason: str = Field(description="そう選んだ理由（気温・湿度・降水確率の観点で）")
-    advice: str = Field(description="羽織りものや傘など、持ち物のアドバイス")
+    reason: list[str] = Field(
+        description="そう選んだ理由（気温・湿度・降水確率の観点で）。1項目1文30字程度で、ちょうど3項目"
+    )
+    advice: list[str] = Field(
+        description="羽織りものや傘など、持ち物のアドバイス。1項目1文30字程度で、ちょうど3項目"
+    )
 
 
 def arrange(outfit: Outfit, image_count: int) -> list[OutfitItem]:
@@ -35,3 +39,11 @@ def arrange(outfit: Outfit, image_count: int) -> list[OutfitItem]:
         seen.add(item.image_number)
         valid.append(item)
     return sorted(valid, key=lambda it: CATEGORIES.index(it.category))  # sorted は安定ソート
+
+
+MAX_BULLETS = 3  # 理由・持ち物は、それぞれ最大この行数まで表示する
+
+
+def bullets(lines: list[str]) -> str:
+    """箇条書き（最大 MAX_BULLETS 行）の Markdown にする。空行は除く"""
+    return "\n".join(f"- {line.strip()}" for line in [l for l in lines if l.strip()][:MAX_BULLETS])
