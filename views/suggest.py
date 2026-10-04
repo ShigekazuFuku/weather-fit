@@ -29,8 +29,8 @@ closet_ids = closet.list_ids()
 with st.container(key="sticky_top"):  # タイトルは管理画面と同じく画面上部に固定
     show_title()
 
-# --- 1. 天気 ---
-st.header("1. 今日の天気")
+# --- 天気 ---
+st.header("今日の天気")
 city = st.selectbox("地域", list(CITIES))
 lat, lon = CITIES[city]
 weather = get_today_weather(lat, lon, city)
@@ -46,7 +46,7 @@ if weather:
 else:
     st.warning("天気を取得できませんでした。")
 
-# --- 2. 提案 ---
+# --- 提案 ---
 # ボタンは画面下部に固定（スクロールしても常に押せる）。スタイルは style.py の .st-key-suggest_bar
 with st.container(key="suggest_bar"):
     clicked = st.button(
@@ -59,9 +59,9 @@ if not closet_ids:
     st.info("提案には服の登録が必要です。「クローゼット管理」から登録してください。")
 
 if clicked:
-    st.header("2. 今日の服装の提案")
+    st.header("今日の服装の提案")
     images = [Image.open(io.BytesIO(closet.read(i))) for i in closet_ids]
-    names = "\n".join(f"- 画像{i + 1}: 服 {i + 1}" for i in range(len(closet_ids)))
+    names = "\n".join(f"- 画像{i + 1}" for i in range(len(closet_ids)))
     prompt = f"""
 あなたはファッションスタイリストです。添付の画像は私が持っている服です。
 {names}
@@ -75,7 +75,7 @@ if clicked:
 持っている服の中から、今日快適に過ごせる組み合わせを1つ提案してください。
 ・使う服は上記の画像番号で指定する（category は {" / ".join(CATEGORIES)} のいずれか）
 ・同じ種類は1点まで（小物は複数可）。暑くて羽織りが不要など、着ない種類は含めない
-・理由は気温・湿度・降水確率の観点で書く
+・理由は気温・湿度・降水確率の観点で書く。画面には画像が並んで表示されるので、note・reason・advice に「画像1」「服15」のような番号は書かず、服は「デニムジャケット」のように特徴で呼ぶ
 ・羽織りものや傘など、持ち物のアドバイスも書く
 手持ちの服に適したものがなければ、items を空にして、その旨を reason に正直に書いてください。
 """
@@ -102,7 +102,7 @@ if clicked:
                 for item in items:
                     img_col, text_col = st.columns([1, 2], vertical_alignment="center")
                     img_col.image(closet.read(closet_ids[item.image_number - 1]), width="stretch")
-                    text_col.markdown(f"**{item.category}**  \n{item.note}  \n:gray[服 {item.image_number}]")
+                    text_col.markdown(f"**{item.category}**  \n{item.note}")
         else:
             st.info("今日の天気に合う服が見つかりませんでした。")
         st.markdown(f"**理由**  \n{outfit.reason}")
