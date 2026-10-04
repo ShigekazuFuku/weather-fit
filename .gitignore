@@ -1,0 +1,19 @@
+# 仮想環境
+venv/
+.venv/
+env/
+
+# 環境変数（APIキーなどの機密情報）
+.env
+
+# Pythonのキャッシュ
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS・エディタ設定
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+closet/
