@@ -1,27 +1,29 @@
 import streamlit as st
 
 from closet_store import ClosetError
-from common import get_closet, show_logout_button
+from common import get_closet, show_logout_button, show_title
 
 COLUMNS = 3  # 服の画像を並べる列数
 
 closet = get_closet()
 
-st.subheader("👗 クローゼット管理")
-
 # --- 登録 ---
+# 「タイトル + 見出し + アップロードボタン」は、一覧をスクロールしても画面上部に残す
+# （固定の仕組みは style.py の .st-key-sticky_top）
 # ボタンは「写真をアップロード」1つだけ。写真を選んだ時点で自動保存する
-# （見た目の調整は style.py の .st-key-uploader_wrap）
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
-with st.container(key="uploader_wrap"):
-    uploaded = st.file_uploader(
-        "服の写真を選択（複数可）",
-        type=["jpg", "jpeg", "png"],
-        accept_multiple_files=True,
-        key=f"uploader_{st.session_state.uploader_key}",
-        label_visibility="collapsed",
-    )
+with st.container(key="sticky_top"):
+    show_title()
+    st.subheader("👗 クローゼット管理")
+    with st.container(key="uploader_wrap"):
+        uploaded = st.file_uploader(
+            "服の写真を選択（複数可）",
+            type=["jpg", "jpeg", "png"],
+            accept_multiple_files=True,
+            key=f"uploader_{st.session_state.uploader_key}",
+            label_visibility="collapsed",
+        )
 if uploaded:
     saved, errors = 0, []
     for f in uploaded:

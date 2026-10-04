@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
-from common import get_closet
+from common import get_closet, show_title
 from outfit import CATEGORIES, Outfit, arrange
 from step2_weather_test import get_today_weather
 
@@ -25,6 +25,9 @@ project = os.getenv("GOOGLE_CLOUD_PROJECT")
 location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
 closet = get_closet()
 closet_ids = closet.list_ids()
+
+with st.container(key="sticky_top"):  # タイトルは管理画面と同じく画面上部に固定
+    show_title()
 
 # --- 1. クローゼット ---
 st.header("1. クローゼット")

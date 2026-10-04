@@ -10,7 +10,6 @@ load_dotenv(override=True)  # シェルの環境変数（~/.bashrc 等）より 
 
 st.set_page_config(page_title="WeatherFit", page_icon="👕")
 apply_style()
-st.title("👕 WeatherFit")
 
 if not os.getenv("GOOGLE_CLOUD_PROJECT"):
     st.error(".env に GOOGLE_CLOUD_PROJECT（GoogleCloudのプロジェクトID）を設定してください。")

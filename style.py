@@ -62,6 +62,13 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 /* サイドバーは使わないので、開閉ボタンも出さない */
 [data-testid="stSidebar"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] {{ display: none; }}
 
+/* 画面上部に固定する部分（タイトルなど）。Streamlit の上部バー(3.75rem)の下に貼りつく */
+.st-key-sticky_top {{
+  position: sticky; top: 3.75rem; z-index: 100; background: #fafafa; padding-bottom: .5rem; gap: .5rem;
+}}
+/* 固定しても、内側のコンテナがはみ出さないように */
+[data-testid="stLayoutWrapper"]:has(> .st-key-sticky_top), [data-testid="stElementContainer"]:has(> .st-key-sticky_top) {{ position: sticky; top: 3.75rem; z-index: 100; }}
+
 /* おすすめコーデ: 左に服の画像、右に種類と説明。スマホでも横並びのまま */
 .st-key-outfit_list [data-testid="stHorizontalBlock"] {{
   flex-wrap: nowrap; gap: 1rem; padding: .6rem; background: #fff; border: 1px solid var(--ig-border); border-radius: 12px;
@@ -101,7 +108,7 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 .st-key-closet_grid .stButton > button {{ min-height: 1.8rem; padding: 0; font-size: .8rem; }}
 
 /* 登録枚数: プロフィールの「投稿 N」風 */
-.closet-stat {{ display: flex; align-items: baseline; gap: .4rem; padding: .6rem 0 1rem; border-bottom: 1px solid var(--ig-border); margin-bottom: 3px; }}
+.closet-stat {{ display: flex; align-items: baseline; gap: .4rem; padding: 0 0 .6rem; margin: -.6rem 0 3px; border-bottom: 1px solid var(--ig-border); }}
 .closet-stat b {{ font-size: 1.4rem; }}
 .closet-stat span {{ color: var(--ig-sub); }}
 </style>

@@ -5,6 +5,11 @@ import streamlit as st
 from closet_store import Closet, make_backend, user_id_from_subject
 
 
+def show_title() -> None:
+    """アプリ名。各画面の「画面上部に固定する部分」(sticky_top)の先頭で呼ぶ"""
+    st.title("👕 WeatherFit")
+
+
 def require_login() -> None:
     """ログイン必須。未ログインならログインボタンを出して処理を止める"""
     if os.getenv("LOCAL_DEV") == "1":
