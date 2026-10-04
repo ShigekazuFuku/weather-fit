@@ -70,12 +70,17 @@
 - ⚠️ 未検証: Docker ビルドとデプロイは未実施（コマンドを書いただけ）。
 - デプロイ手順（`<プロジェクトID>` は自分のものに置き換える）:
   1. `gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project=<プロジェクトID>`
-  2. `gcloud run deploy weather-fit --source . --region asia-northeast1 --project=<プロジェクトID> --set-env-vars GOOGLE_CLOUD_PROJECT=<プロジェクトID>,GOOGLE_CLOUD_LOCATION=global --allow-unauthenticated`
+  2. `gcloud run deploy weather-fit --source . --region asia-northeast1 --project=<プロジェクトID> --set-env-vars GOOGLE_CLOUD_PROJECT=<プロジェクトID>,GOOGLE_CLOUD_LOCATION=global --max-instances 1 --allow-unauthenticated`
+     （`--max-instances 1` は同時に動くインスタンスを1台に制限し、大量アクセス時の課金に頭打ちを作る）
   3. 実行用サービスアカウントに「Vertex AI ユーザー（`roles/aiplatform.user`）」権限が必要（ローカルの ADC の代わりになる）。
   4. 発行された URL をスマホ/ブラウザで開いて動作確認。
 - 注意点:
   - Cloud Run のディスクは一時的なため、`closet/` にアップロードした服はインスタンス再起動で消える（永続化するなら Cloud Storage 化が必要）。
-  - `--allow-unauthenticated` は URL を知る人が誰でも使える設定（Gemini の課金が発生しうる）。公開前に認証の要否を検討すること。
+  - `--allow-unauthenticated` は URL を知る人が誰でも使える設定（Gemini の課金が発生しうる）。認証は付けない方針とし、代わりに以下の課金対策を行った。
+- 課金対策（2026-10-04）:
+  - 予算アラートを作成済み: 月 1,000 円、50% / 90% / 100% 到達時に請求アカウント管理者へメール通知（`gcloud billing budgets create`）。通知のみで自動停止はしない。
+  - 同時インスタンス数の上限は `--max-instances 1`（デプロイ時に指定）。
+  - 使わなくなったら `gcloud run services delete weather-fit --region asia-northeast1` で削除する。
 
 ### 🗺️ 現在地と次のタスク
 
