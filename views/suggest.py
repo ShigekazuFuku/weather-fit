@@ -27,7 +27,6 @@ closet_ids = closet.list_ids()
 # --- 1. クローゼット ---
 st.header("1. クローゼット")
 st.write(f"登録済み: {len(closet_ids)} 枚")
-st.page_link("views/manage.py", label="服の登録・削除はこちら（クローゼット管理）", icon="👗")
 
 # --- 2. 天気 ---
 st.header("2. 今日の天気")
@@ -87,3 +86,6 @@ if clicked:
             st.markdown(response.text)
         except Exception as e:
             st.error(f"エラーが発生しました: {e}")
+
+# 固定ボタンに本文の末尾が隠れないための余白
+st.markdown('<div style="height:4.5rem"></div>', unsafe_allow_html=True)

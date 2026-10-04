@@ -46,20 +46,28 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 .st-key-weather_grid [data-testid="stColumn"] {{ min-width: 0; width: auto; flex: 1 1 0; }}
 .st-key-weather_grid [data-testid="stMetricValue"] {{ font-size: 1.5rem; }}
 
-/* 画面切り替えのタブ（スマホでも横2つ）。現在のページは下線で示す */
-.st-key-top_nav [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap; gap: 0; border-bottom: 1px solid var(--ig-border); }}
-.st-key-top_nav [data-testid="stColumn"] {{ min-width: 0; width: auto; flex: 1 1 0; }}
-.st-key-top_nav a {{ justify-content: center; border-radius: 0; padding: .6rem 0; font-weight: 600; color: var(--ig-sub); }}
-.st-key-top_nav a[aria-current="page"] {{ color: #262626; background: transparent; box-shadow: inset 0 -2px 0 #262626; }}
+/* 画面切り替えのタブ: Instagramの下部タブのように画面最下部に固定（スマホでも横2つ） */
+:root {{ --nav-h: 3.4rem; }}
+.st-key-bottom_nav {{
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1000;
+  width: min(100%, 640px); box-sizing: border-box; height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom); background: #fff; border-top: 1px solid var(--ig-border);
+}}
+.st-key-bottom_nav [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap; gap: 0; }}
+.st-key-bottom_nav [data-testid="stColumn"] {{ min-width: 0; width: auto; flex: 1 1 0; }}
+.st-key-bottom_nav a {{
+  justify-content: center; height: var(--nav-h); border-radius: 0; font-weight: 600; color: var(--ig-sub);
+}}
+.st-key-bottom_nav a[aria-current="page"] {{ color: #262626; background: transparent; box-shadow: inset 0 2px 0 #262626; }}
 /* サイドバーは使わないので、開閉ボタンも出さない */
 [data-testid="stSidebar"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] {{ display: none; }}
 
-/* 提案ボタン: 画面下部に固定（スマホの親指で押しやすい位置）。本文が隠れないよう下に余白を足す */
-.block-container {{ padding-bottom: 7rem; }}
+/* 提案ボタン: タブのすぐ上に固定（スマホの親指で押しやすい位置）。本文が隠れないよう下に余白を足す */
+.block-container {{ padding-bottom: 6rem; }}
 .st-key-suggest_bar {{
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 999;
-  width: min(100%, 640px); box-sizing: border-box;
-  padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+  position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); left: 50%;
+  transform: translateX(-50%); z-index: 999;
+  width: min(100%, 640px); box-sizing: border-box; padding: .6rem 1rem;
   background: rgba(255, 255, 255, .96); border-top: 1px solid var(--ig-border);
 }}
 .st-key-suggest_bar .stButton > button {{ min-height: 3rem; font-size: 1rem; }}
