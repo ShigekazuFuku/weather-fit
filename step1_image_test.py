@@ -3,12 +3,13 @@ from PIL import Image
 from dotenv import load_dotenv
 from google import genai
 
-# 1. .env から APIキーを読み込み
-load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+# 1. .env から Google Cloud のプロジェクト設定を読み込み（Vertex AI 経由で呼ぶ）
+load_dotenv(override=True)
+project = os.getenv("GOOGLE_CLOUD_PROJECT")
+location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
 
-if not api_key:
-    print("❌ エラー: .env ファイルに GEMINI_API_KEY が見つかりませんでした。")
+if not project:
+    print("❌ エラー: .env ファイルに GOOGLE_CLOUD_PROJECT が見つかりませんでした。")
     exit(1)
 
 # 2. 画像ファイルを開く
@@ -21,7 +22,7 @@ print(f"🖼️ 画像 [{image_path}] を読み込みました。")
 image = Image.open(image_path)
 
 # 3. Gemini クライアントの初期化
-client = genai.Client(api_key=api_key)
+client = genai.Client(vertexai=True, project=project, location=location)
 
 # 4. 画像と質問を Gemini に送る
 print("🤖 Gemini に画像を見せて分析してもらっています...")

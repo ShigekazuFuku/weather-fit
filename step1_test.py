@@ -2,21 +2,22 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
-# 1. .env ファイルから環境変数（GEMINI_API_KEY）を読み込む
-load_dotenv()
+# 1. .env ファイルから環境変数（GOOGLE_CLOUD_PROJECT）を読み込む（Vertex AI 経由で呼ぶ）
+load_dotenv(override=True)
 
-api_key = os.getenv("GEMINI_API_KEY")
+project = os.getenv("GOOGLE_CLOUD_PROJECT")
+location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
 
-if not api_key:
-    print("❌ エラー: .env ファイルに GEMINI_API_KEY が見つかりませんでした。")
-    print("   .env に GEMINI_API_KEY=あなたのキー を記述してください。")
+if not project:
+    print("❌ エラー: .env ファイルに GOOGLE_CLOUD_PROJECT が見つかりませんでした。")
+    print("   .env に GOOGLE_CLOUD_PROJECT=プロジェクトID を記述してください。")
     exit(1)
 
-print("🔑 APIキーの読み込みに成功しました。")
-print("🤖 Gemini API に接続してテストメッセージを送信しています...")
+print("🔑 プロジェクト設定の読み込みに成功しました。")
+print("🤖 Vertex AI 経由で Gemini に接続してテストメッセージを送信しています...")
 
 # 2. Gemini クライアントの準備
-client = genai.Client(api_key=api_key)
+client = genai.Client(vertexai=True, project=project, location=location)
 
 try:
     # 3. Gemini にメッセージを送ってみる（推奨モデル gemini-3.8-flash を使用）

@@ -21,14 +21,16 @@ CITIES = {
     "福岡": (33.5902, 130.4017),
 }
 
-load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+load_dotenv(override=True)  # シェルの環境変数（~/.bashrc 等）より .env を優先する
+# Vertex AI（Google Cloud）経由で Gemini を呼ぶ。課金は Google Cloud のクレジットが対象
+project = os.getenv("GOOGLE_CLOUD_PROJECT")
+location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
 
 st.title("👕 WeatherFit")
 st.caption("持っている服と今日の天気から、快適な服装を提案します")
 
-if not api_key:
-    st.error(".env に GEMINI_API_KEY を設定してください。")
+if not project:
+    st.error(".env に GOOGLE_CLOUD_PROJECT（GoogleCloudのプロジェクトID）を設定してください。")
     st.stop()
 
 # --- 1. クローゼット登録 ---
@@ -87,7 +89,7 @@ if st.button("提案してもらう", type="primary", disabled=not (closet_files
 """
     with st.spinner("Gemini が考え中..."):
         try:
-            client = genai.Client(api_key=api_key)
+            client = genai.Client(vertexai=True, project=project, location=location)
             response = client.models.generate_content(
                 model=MODEL, contents=[*images, prompt]
             )

@@ -36,7 +36,7 @@
 
 #### 4. Git 環境の整備 & GitHub へのプッシュ
 - **セキュリティ対策**:
-  - APIキーが書かれた `.env` や仮想環境 `venv/` を除外する [.gitignore](.gitignore) を作成。
+  - 設定が書かれた `.env` や仮想環境 `venv/` を除外する [.gitignore](.gitignore) を作成。
   - テンプレート用の [.env.example](.env.example) を用意。
 - **Git 操作**:
   - 開発用ブランチ `dev` を作成。
@@ -54,6 +54,16 @@
 - [requirements.txt](requirements.txt) を追加。
 - ⚠️ 未検証: この環境に streamlit 未インストールのため構文チェックのみ。実機で要動作確認。
 - 実行方法: `pip install -r requirements.txt` → `streamlit run app.py`
+- ✅ 動作確認済み（Vertex AI 経由で服装提案が表示されることを確認）。
+
+#### Gemini の呼び出しを AI Studio から Vertex AI（Google Cloud）へ変更
+- 経緯: AI Studio のプリペイド残高切れ（402 RESOURCE_EXHAUSTED）。Google Cloud のクレジットを使うため Vertex AI に切り替えた。
+- `app.py` / `step1_test.py` / `step1_image_test.py`: `genai.Client(vertexai=True, project=..., location=...)` に変更。`GEMINI_API_KEY` は不要になった。
+- `.env` に `GOOGLE_CLOUD_PROJECT`（必須）と `GOOGLE_CLOUD_LOCATION`（省略時 `global`）を設定する。
+- 認証は ADC（`gcloud auth application-default login`）。事前に `gcloud services enable aiplatform.googleapis.com --project=<プロジェクトID>` が必要。
+- ハマりどころ:
+  - ADC の請求先が別プロジェクトになっていた → `gcloud auth application-default set-quota-project <プロジェクトID>` で修正。
+  - `~/.bashrc` の `GOOGLE_CLOUD_PROJECT` が `.env` より優先されていた → `load_dotenv(override=True)` で `.env` を優先。
 
 ### 🗺️ 現在地と次のタスク
 
