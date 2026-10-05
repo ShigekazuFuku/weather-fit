@@ -171,3 +171,9 @@
 
 - 「理由」「持ち物」を3行の短い箇条書きに変更（Geminiには `list[str]` で返させ、表示側(`outfit.bullets`)でも最大3行に切り詰める）。
 - コーデのサンプル画像をGeminiに作らせる案は、料金が高いため見送り（顔なしマネキン風の画像など。1枚あたり約$0.02〜$0.24）。
+
+#### Cloud Run 再デプロイ（2026-10-05）
+- main（PR #2 マージ後、71815b9）を `gcloud run deploy weather-fit --source . --region asia-northeast1 --project <プロジェクトID> --quiet` で再デプロイ。新リビジョン `weather-fit-00002-vwj` がトラフィック全量（100パーセント）を受けている。
+- 環境変数・Secret・サービスアカウント・`--max-instances 1` などの設定は前回から引き継がれた（デプロイ時に指定し直していない）。Secret は `/app/.streamlit/` ごとマウントされているため、`config.toml` は隠れる。テーマは Dockerfile の環境変数で固定済み。
+- 起動後30分以内の警告・エラーログは無し。
+- 未確認: ブラウザ・実機スマホでの動作、本物のGeminiでの提案（JSON返答）。公開URLはこのログに載せない。
