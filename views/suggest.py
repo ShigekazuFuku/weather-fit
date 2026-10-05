@@ -10,7 +10,7 @@ from PIL import Image
 from common import get_closet, show_title
 from messages import WAITING_MESSAGES
 from outfit import CATEGORIES, Outfit, arrange, bullets
-from step2_weather_test import get_today_weather
+from weather import get_today_weather
 
 MODEL = "gemini-3.8-flash"
 

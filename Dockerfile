@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py common.py style.py messages.py outfit.py closet_store.py step2_weather_test.py ./
+COPY app.py common.py style.py messages.py outfit.py closet_store.py weather.py ./
 COPY views/ views/
 COPY .streamlit/config.toml .streamlit/config.toml
 

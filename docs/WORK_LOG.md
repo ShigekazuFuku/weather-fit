@@ -177,3 +177,8 @@
 - 環境変数・Secret・サービスアカウント・`--max-instances 1` などの設定は前回から引き継がれた（デプロイ時に指定し直していない）。Secret は `/app/.streamlit/` ごとマウントされているため、`config.toml` は隠れる。テーマは Dockerfile の環境変数で固定済み。
 - 起動後30分以内の警告・エラーログは無し。
 - 未確認: ブラウザ・実機スマホでの動作、本物のGeminiでの提案（JSON返答）。公開URLはこのログに載せない。
+
+## 整理（古いテスト用コードの削除・ドキュメント集約）
+- `step1_test.py` / `step1_image_test.py` / `images/sample.jpg` を削除（上記の記録はこの時点の履歴）。
+- `step2_weather_test.py` はアプリが使うため `weather.py` に改名。
+- `PROJECT_PLAN.md` / `WORK_LOG.md` / `作りたいもの.md` を `docs/` に移動（`README.md` はルートのまま）。
