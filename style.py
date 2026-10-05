@@ -105,7 +105,7 @@ h2, h3 {{ font-weight: 700 !important; font-size: 1.1rem !important; }}
 .st-key-closet_grid [data-testid="stVerticalBlock"] {{ gap: 0; }}
 .st-key-closet_grid img {{ aspect-ratio: 1 / 1; object-fit: cover; border-radius: 2px; }}
 .st-key-closet_grid [data-testid="stImageCaption"] {{ display: none; }}
-.st-key-closet_grid .stButton > button {{ min-height: 1.8rem; padding: 0; font-size: .8rem; }}
+.st-key-closet_grid [data-testid="stCheckbox"] {{ margin-top: 2px; }}
 
 </style>
 """

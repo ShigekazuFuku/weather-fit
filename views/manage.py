@@ -45,7 +45,27 @@ if "flash" in st.session_state:
 closet_ids = closet.list_ids()
 if not closet_ids:
     st.caption("まだ服が登録されていません。「写真をアップロード」から追加してください。")
+selected = [i for i in closet_ids if st.session_state.get(f"sel_{i}")]
+
+
+@st.dialog("削除の確認")
+def confirm_delete(ids: list[str]):
+    st.write(f"選択した {len(ids)} 枚を削除します。元に戻せません。")
+    c1, c2 = st.columns(2)
+    if c1.button("削除する", type="primary", width="stretch"):
+        for image_id in ids:
+            closet.delete(image_id)
+            st.session_state.pop(f"sel_{image_id}", None)
+        st.session_state.flash = (0, [])
+        st.rerun()
+    if c2.button("キャンセル", width="stretch"):
+        st.rerun()
+
+
 if closet_ids:
+    # 写真をチェックで選び、まとめて削除する（1枚ずつの削除ボタンは置かない）
+    if selected and st.button(f"🗑 選択した {len(selected)} 枚を削除", width="stretch"):
+        confirm_delete(selected)
     # 一覧のスタイル（スマホでも横3列を保つ等）は style.py の .st-key-closet_grid
     with st.container(key="closet_grid"):
         # 3枚ずつ1行にする（最後の行が余っても幅がそろうよう、列は常に COLUMNS 個作る）
@@ -55,9 +75,7 @@ if closet_ids:
                 image_id = closet_ids[i]
                 with col:
                     st.image(closet.read(image_id), caption=f"服 {i + 1}", width="stretch")
-                    if st.button("🗑 削除", key=f"del_{image_id}", type="tertiary", width="stretch"):
-                        closet.delete(image_id)
-                        st.rerun()
+                    st.checkbox(f"服 {i + 1} を選択", key=f"sel_{image_id}", label_visibility="collapsed")
 
 # --- アカウント ---
 show_logout_button()
