@@ -17,7 +17,7 @@ from PIL import Image
 
 ALLOWED_FORMATS = {"JPEG": ".jpg", "PNG": ".png"}
 MAX_BYTES = 10 * 1024 * 1024  # 1枚あたり10MBまで
-MAX_IMAGES_PER_USER = 50
+MAX_IMAGES_PER_USER = 500
 _ID_RE = re.compile(r"^[0-9a-f]{32}\.(jpg|png)$")
 
 
